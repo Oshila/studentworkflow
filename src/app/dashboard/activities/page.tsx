@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   collection,
   addDoc,
@@ -27,11 +27,14 @@ export default function ActivitiesPage() {
   const [description, setDescription] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Firestore reference for activities collection under current user
-  const activitiesRef = collection(db, "users", auth.currentUser?.uid || "guest", "activities");
+  // Memoize activitiesRef so it doesn't recreate on every render
+  const activitiesRef = useMemo(() => {
+    if (!auth.currentUser) return null;
+    return collection(db, "users", auth.currentUser.uid, "activities");
+  }, [auth.currentUser]);
 
   useEffect(() => {
-    if (!auth.currentUser) return;
+    if (!activitiesRef) return;
 
     const q = query(activitiesRef, orderBy("title"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -44,7 +47,7 @@ export default function ActivitiesPage() {
     });
 
     return () => unsubscribe();
-  }, [auth.currentUser]);
+  }, [activitiesRef]);
 
   const clearForm = () => {
     setTitle("");
@@ -65,6 +68,7 @@ export default function ActivitiesPage() {
         await updateDoc(docRef, { title, description });
       } else {
         // Add new
+        if (!activitiesRef) return;
         await addDoc(activitiesRef, { title, description });
       }
       clearForm();

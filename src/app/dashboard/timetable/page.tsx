@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { db, auth } from "../../../lib/firebase"; 
 import {
   collection,
@@ -42,7 +42,7 @@ export default function TimetablePage() {
   const [error, setError] = useState("");
 
   // Fetch saved timetable from Firestore
-  const fetchTimetable = async () => {
+  const fetchTimetable = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
@@ -70,11 +70,11 @@ export default function TimetablePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchTimetable();
-  }, [user]);
+  }, [fetchTimetable]);
 
   // Handle input change in form
   const handleChange = (

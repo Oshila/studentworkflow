@@ -5,7 +5,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 
 export default function DashboardPage() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function DashboardPage() {
       </h1>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">🎯 Today's Focus</h2>
+        <h2 className="text-2xl font-semibold mb-2">🎯 Today&apos;s Focus</h2>
         <p className="text-lg text-gray-700">
           Break your study goals into manageable tasks. Remember, consistency beats intensity.
         </p>
@@ -37,7 +37,7 @@ export default function DashboardPage() {
       <section className="mb-6">
         <h2 className="text-2xl font-semibold mb-2">📅 Workflow Reminder</h2>
         <p className="text-gray-600 italic">
-          "Organize your time, prioritize your tasks, and track your progress. The journey to success starts here."
+          &quot;Organize your time, prioritize your tasks, and track your progress. The journey to success starts here.&quot;
         </p>
       </section>
 

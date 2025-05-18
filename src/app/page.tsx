@@ -1,4 +1,7 @@
-// FILE: app/page.tsx
+// app/page.tsx
+"use client";
+
+import Image from "next/image";
 
 export default function HomePage() {
   return (
@@ -25,11 +28,13 @@ export default function HomePage() {
           </a>
         </div>
       </div>
-      <div className="mt-12 max-w-xl w-full">
-        <img
+      <div className="mt-12 max-w-xl w-full relative h-[300px] md:h-[400px]">
+        <Image
           src="/student-illustration.svg"
           alt="Student illustration"
-          className="w-full h-auto"
+          fill
+          style={{ objectFit: "contain" }}
+          priority
         />
       </div>
     </main>

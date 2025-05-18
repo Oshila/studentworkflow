@@ -29,12 +29,24 @@ export default function TasksPage() {
   const [status, setStatus] = useState<"pending" | "done">("pending");
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const tasksRef = collection(db, "users", auth.currentUser?.uid || "guest", "tasks");
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Set userId once on mount (you can also listen to auth changes if you want)
   useEffect(() => {
-    if (!auth.currentUser) return;
+    if (auth.currentUser) {
+      setUserId(auth.currentUser.uid);
+    } else {
+      setUserId(null);
+    }
+  }, []);
 
+  // Subscribe to tasks when userId is set
+  useEffect(() => {
+    if (!userId) return;
+
+    const tasksRef = collection(db, "users", userId, "tasks");
     const q = query(tasksRef, orderBy("dueDate"));
+
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const tsks: Task[] = [];
       querySnapshot.forEach((doc) => {
@@ -45,7 +57,7 @@ export default function TasksPage() {
     });
 
     return () => unsubscribe();
-  }, [auth.currentUser]);
+  }, [userId]);
 
   const clearForm = () => {
     setTitle("");
@@ -55,6 +67,11 @@ export default function TasksPage() {
   };
 
   const handleAddOrUpdate = async () => {
+    if (!userId) {
+      alert("You must be logged in to add or edit tasks.");
+      return;
+    }
+
     if (!title.trim()) {
       alert("Title is required");
       return;
@@ -66,9 +83,10 @@ export default function TasksPage() {
 
     try {
       if (editingId) {
-        const docRef = doc(db, "users", auth.currentUser!.uid, "tasks", editingId);
+        const docRef = doc(db, "users", userId, "tasks", editingId);
         await updateDoc(docRef, { title, dueDate, status });
       } else {
+        const tasksRef = collection(db, "users", userId, "tasks");
         await addDoc(tasksRef, { title, dueDate, status });
       }
       clearForm();
@@ -86,10 +104,14 @@ export default function TasksPage() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!userId) {
+      alert("You must be logged in to delete tasks.");
+      return;
+    }
     if (!confirm("Are you sure you want to delete this task?")) return;
 
     try {
-      const docRef = doc(db, "users", auth.currentUser!.uid, "tasks", id);
+      const docRef = doc(db, "users", userId, "tasks", id);
       await deleteDoc(docRef);
     } catch (error) {
       console.error("Error deleting task: ", error);
