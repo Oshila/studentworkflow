@@ -29,13 +29,7 @@ export default function HomePage() {
         </div>
       </div>
       <div className="mt-12 max-w-xl w-full relative h-[300px] md:h-[400px]">
-        <Image
-          src="/student-illustration.svg"
-          alt="Student illustration"
-          fill
-          style={{ objectFit: "contain" }}
-          priority
-        />
+      
       </div>
     </main>
   );
