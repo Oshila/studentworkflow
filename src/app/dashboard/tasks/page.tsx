@@ -57,6 +57,8 @@ export default function TasksPage() {
     });
 
     return () => unsubscribe();
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const clearForm = () => {

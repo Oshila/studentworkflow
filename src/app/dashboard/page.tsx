@@ -28,7 +28,7 @@ export default function DashboardPage() {
       </h1>
 
       <section className="mb-6">
-        <h2 className="text-2xl font-semibold mb-2">🎯 Today&apos;s Focus</h2>
+        <h2 className="text-2xl font-semibold mb-2">🎯 Today&#39;s Focus</h2>
         <p className="text-lg text-gray-700">
           Break your study goals into manageable tasks. Remember, consistency beats intensity.
         </p>
@@ -37,7 +37,7 @@ export default function DashboardPage() {
       <section className="mb-6">
         <h2 className="text-2xl font-semibold mb-2">📅 Workflow Reminder</h2>
         <p className="text-gray-600 italic">
-          &quot;Organize your time, prioritize your tasks, and track your progress. The journey to success starts here.&quot;
+          {"\"Organize your time, prioritize your tasks, and track your progress. The journey to success starts here.\""}
         </p>
       </section>
 

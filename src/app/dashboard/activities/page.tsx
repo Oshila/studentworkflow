@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import {
   collection,
   addDoc,
@@ -27,15 +27,21 @@ export default function ActivitiesPage() {
   const [description, setDescription] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  // Memoize activitiesRef so it doesn't recreate on every render
-  const activitiesRef = useMemo(() => {
-    if (!auth.currentUser) return null;
-    return collection(db, "users", auth.currentUser.uid, "activities");
-  }, [auth.currentUser]);
+  // We'll track user id in a state to react to auth changes if needed
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!activitiesRef) return;
+    // Subscribe to auth state changes to update userId reactively
+    const unsubscribeAuth = auth.onAuthStateChanged(user => {
+      setUserId(user ? user.uid : null);
+    });
+    return () => unsubscribeAuth();
+  }, []);
 
+  useEffect(() => {
+    if (!userId) return;
+
+    const activitiesRef = collection(db, "users", userId, "activities");
     const q = query(activitiesRef, orderBy("title"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const acts: Activity[] = [];
@@ -47,7 +53,7 @@ export default function ActivitiesPage() {
     });
 
     return () => unsubscribe();
-  }, [activitiesRef]);
+  }, [userId]);
 
   const clearForm = () => {
     setTitle("");
@@ -61,14 +67,19 @@ export default function ActivitiesPage() {
       return;
     }
 
+    if (!userId) {
+      alert("User not authenticated");
+      return;
+    }
+
     try {
       if (editingId) {
         // Update existing
-        const docRef = doc(db, "users", auth.currentUser!.uid, "activities", editingId);
+        const docRef = doc(db, "users", userId, "activities", editingId);
         await updateDoc(docRef, { title, description });
       } else {
         // Add new
-        if (!activitiesRef) return;
+        const activitiesRef = collection(db, "users", userId, "activities");
         await addDoc(activitiesRef, { title, description });
       }
       clearForm();
@@ -87,8 +98,13 @@ export default function ActivitiesPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this activity?")) return;
 
+    if (!userId) {
+      alert("User not authenticated");
+      return;
+    }
+
     try {
-      const docRef = doc(db, "users", auth.currentUser!.uid, "activities", id);
+      const docRef = doc(db, "users", userId, "activities", id);
       await deleteDoc(docRef);
     } catch (error) {
       console.error("Error deleting activity: ", error);

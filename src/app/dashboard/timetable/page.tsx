@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { db, auth } from "../../../lib/firebase"; 
+import { db, auth } from "../../../lib/firebase";
 import {
   collection,
   query,
@@ -23,10 +23,21 @@ interface ClassSlot {
 interface TimetableEntry extends ClassSlot {
   id?: string;
   day: string;
+  userId?: string;
 }
 
 export default function TimetablePage() {
-  const user = auth.currentUser;
+  // Manage user state reactively
+  const [user, setUser] = useState(auth.currentUser);
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const [slotsByDay, setSlotsByDay] = useState<Record<string, ClassSlot[]>>(() => {
     // Initialize empty slots for each day with one empty slot
     const initial: Record<string, ClassSlot[]> = {};
@@ -72,6 +83,7 @@ export default function TimetablePage() {
     }
   }, [user]);
 
+  // Call fetchTimetable when user changes (and when component mounts if user is set)
   useEffect(() => {
     fetchTimetable();
   }, [fetchTimetable]);
